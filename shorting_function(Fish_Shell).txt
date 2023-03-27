@@ -1,0 +1,22 @@
+function sort_files
+    set files (find ./ -name "$argv[2]*.$argv[1]")
+    mkdir $argv[2]
+    mkdir $argv[2]/bytes
+    mkdir $argv[2]/kilobytes
+    mkdir $argv[2]/megabytes
+    mkdir $argv[2]/gigabytes
+    
+    for i in $files
+        set size (wc -c $i)
+        set size (string replace $i '' $size)
+        if test $size -lt 1024
+            cp $i $argv[2]/bytes
+        else if test $size -lt 1048576 
+            cp $i $argv[2]/kilobytes
+        else if test $size -lt 1073741824
+            cp $i $argv[2]/megabytes
+        else 
+            cp $i $argv[2]/gigabytes
+        end
+    end
+end # function end

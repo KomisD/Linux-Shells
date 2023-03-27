@@ -1,0 +1,38 @@
+typedef void (*sighandler_t)(int); /* type definition for return handler */
+static jmp_buf jbuf;            /* setup as global/static for sigsetjmp and siglongjmp */
+
+void handler(int signo)
+{
+    /* issue siglongjmp */
+    siglongjmp(jbuf,signo);
+}
+
+
+int safeWrite(int* ptr, int val)
+{
+  int status = 0;
+  
+  /* call signal and keep old handler */
+  //int (* previous)();
+  //previous=signal(SIGSEGV,handler);
+  sighandler_t previous=signal(SIGSEGV,handler);
+
+  /* check if ptr is NULL and set sigsetjmp to be able to return */
+  if( ptr == NULL ) {
+      signal(SIGSEGV,previous);
+      return 1;   
+  }
+  if (sigsetjmp(jbuf,1) != 0) {
+      signal(SIGSEGV,previous);
+      return 1;
+      
+  }
+  /* try to write the value at the specified memory location */
+  *ptr=val;
+  /* handle success/error */
+  /* revert to old handler */
+  signal(SIGSEGV,previous);
+
+  return status;
+
+}

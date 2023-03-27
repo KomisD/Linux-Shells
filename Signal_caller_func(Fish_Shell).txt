@@ -1,0 +1,17 @@
+function sendSignal
+    if not test (count $argv) -ne 2
+        set signal $argv[1]
+        set pid $argv[2]
+        set signals (kill -L | grep -w $signal)
+        set pids (jobs -p)
+        if [ (count $signals) -eq 0 ]
+            echo "Signal error"
+        else if not contains $pid $pids
+            echo "Process not found"
+        else
+            kill -s $signal $pid
+        end
+    else
+       echo "Bad usage"
+    end
+end
